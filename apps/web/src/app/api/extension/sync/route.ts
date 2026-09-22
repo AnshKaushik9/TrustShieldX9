@@ -60,9 +60,6 @@ export async function POST(req: Request) {
       };
 
       if (body.reviewRequired) {
-        // We push this to the review store via API call so it's clean, or just call it directly if it's imported?
-        // Since reviewSyncStore is server side, we could just import it!
-        // But let's avoid tight coupling. Wait, actually we can just fetch the local API.
         fetch(`${DASHBOARD_URL}/api/reviews`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -75,6 +72,32 @@ export async function POST(req: Request) {
             thumbnail: body.thumbnail,
             payload: event
           })
+        }).catch(() => {});
+      } else {
+        // Log auto-approved LWG scans in the real data flow
+        fetch(`${DASHBOARD_URL}/api/reviews`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: event.id,
+            source: "Live Web Guardian",
+            aiDecision: event.prediction,
+            confidence: event.confidence,
+            priority: "Low",
+            thumbnail: body.thumbnail,
+            payload: event
+          })
+        }).then(() => {
+          fetch(`${DASHBOARD_URL}/api/reviews`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: event.id,
+              reviewer: "Auto Review",
+              finalDecision: event.prediction,
+              decisionAction: "Auto"
+            })
+          });
         }).catch(() => {});
       }
 

@@ -43,8 +43,8 @@ export function ArtifactCard({ artifacts }: ArtifactCardProps) {
                 {getSeverityIcon(artifact.severity)}
               </div>
               <div className="flex-1 space-y-1">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-semibold text-text-primary">{artifact.type}</h4>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h4 className="text-sm font-semibold text-text-primary leading-tight">{artifact.type}</h4>
                   <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${getSeverityColor(artifact.severity)}`}>
                     {artifact.severity}
                   </span>

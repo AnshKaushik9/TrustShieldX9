@@ -14,11 +14,19 @@ interface ReportPanelProps {
 
 export function ReportPanel({ report, file }: ReportPanelProps) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleDownload = async () => {
     setIsDownloading(true);
-    await pdfGeneratorService.generateAndDownloadReport(report, file);
-    setIsDownloading(false);
+    setErrorMsg(null);
+    try {
+      await pdfGeneratorService.generateAndDownloadReport(report, file);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to generate report");
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -47,14 +55,19 @@ export function ReportPanel({ report, file }: ReportPanelProps) {
           </div>
         </div>
         
-        <Button 
-          onClick={handleDownload} 
-          disabled={isDownloading}
-          className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white"
-        >
-          <Download className={`w-4 h-4 mr-2 ${isDownloading ? 'animate-bounce' : ''}`} />
-          {isDownloading ? 'Generating PDF...' : 'Download Full Report'}
-        </Button>
+        <div className="flex flex-col items-end gap-2 w-full md:w-auto">
+          <Button 
+            onClick={handleDownload} 
+            disabled={isDownloading}
+            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Download className={`w-4 h-4 mr-2 ${isDownloading ? 'animate-bounce' : ''}`} />
+            {isDownloading ? 'Generating PDF...' : 'Download Full Report'}
+          </Button>
+          {errorMsg && (
+            <p className="text-sm text-red-500 font-medium">{errorMsg}</p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

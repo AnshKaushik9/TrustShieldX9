@@ -15,8 +15,8 @@ export default function SafeScanPage() {
         </CardHeader>
         <CardContent>
           <div className="flex gap-4">
-            <Input placeholder="Enter URL or Hash..." className="max-w-xl" />
-            <Button>Analyze</Button>
+            <Input placeholder="Enter URL or Hash..." className="max-w-xl" disabled />
+            <Button disabled>Analyze (In Development)</Button>
           </div>
         </CardContent>
       </Card>

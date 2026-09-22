@@ -1,17 +1,20 @@
 "use client";
 
-import { Bell, Search, Moon, Sun, Plus } from "lucide-react";
+import { Bell, Search, Moon, Sun, Plus, Menu } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
+import { useLayoutStore } from "@/lib/store";
 
 export function Header() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const { toggleSidebar } = useLayoutStore();
 
   useEffect(() => {
     setMounted(true);
@@ -37,6 +40,9 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" className="md:hidden text-text-muted" onClick={toggleSidebar} aria-label="Toggle menu">
+          <Menu className="h-5 w-5" />
+        </Button>
         <div className="relative hidden md:block w-64">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-text-muted" />
           <Input 
@@ -65,20 +71,21 @@ export function Header() {
           {mounted && theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
         
-        <Button variant="ghost" size="icon" className="relative text-text-muted" aria-label="Notifications">
+        <Button variant="ghost" size="icon" className="relative text-text-muted" aria-label="Notifications" disabled title="No new notifications">
           <Bell className="h-5 w-5" />
-          <span className="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-blue-500 border-2 border-surface" aria-hidden="true" />
         </Button>
 
         <div className="h-8 w-px bg-muted mx-1" />
 
-        <Button size="sm" className="hidden sm:flex ml-1">
-          <Plus className="h-4 w-4 mr-1.5" /> Quick Scan
+        <Button size="sm" className="hidden sm:flex ml-1" asChild>
+          <Link href="/media-forensics">
+            <Plus className="h-4 w-4 mr-1.5" /> Quick Scan
+          </Link>
         </Button>
         
-        <button className="h-8 w-8 ml-2 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 border border-slate-600 overflow-hidden flex items-center justify-center shrink-0" aria-label="User menu">
+        <Link href="/settings" className="h-8 w-8 ml-2 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 border border-slate-600 overflow-hidden flex items-center justify-center shrink-0" aria-label="User menu">
           <span className="text-xs font-bold text-white">AD</span>
-        </button>
+        </Link>
       </div>
     </header>
   );

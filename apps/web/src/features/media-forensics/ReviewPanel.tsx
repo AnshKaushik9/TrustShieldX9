@@ -62,7 +62,7 @@ export function ReviewPanel({ report, onSubmit }: ReviewPanelProps) {
 
         <div>
           <label className="block text-sm font-medium text-text-muted mb-3">Reviewer Decision</label>
-          <div className="flex gap-4">
+          <div className="flex flex-col md:flex-row gap-4">
             <label className={`flex-1 border rounded-lg p-3 cursor-pointer transition-colors flex items-center gap-2 ${decision === "Approve" ? "bg-indigo-600/20 border-indigo-500 text-indigo-300" : "border-border-muted text-text-muted hover:bg-muted"}`}>
               <input type="radio" name="decision" checked={decision === "Approve"} onChange={() => setDecision("Approve")} className="hidden" />
               Approve AI Decision
@@ -81,7 +81,7 @@ export function ReviewPanel({ report, onSubmit }: ReviewPanelProps) {
         {decision === "Override" && (
           <div className="animate-in fade-in zoom-in-95 duration-200">
             <label className="block text-sm font-medium text-text-muted mb-3">Select Classification</label>
-            <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               {(["Authentic", "Suspicious", "AI Generated"] as const).map((cls) => (
                 <label key={cls} className={`flex-1 border rounded-lg p-2 text-center cursor-pointer transition-colors ${overrideClass === cls ? "bg-indigo-600 border-indigo-500 text-white" : "border-border text-text-muted hover:bg-muted"}`}>
                   <input type="radio" checked={overrideClass === cls} onChange={() => setOverrideClass(cls)} className="hidden" />

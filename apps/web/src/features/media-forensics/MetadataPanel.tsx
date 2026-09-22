@@ -27,13 +27,13 @@ export function MetadataPanel({ metadata }: MetadataPanelProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {fields.map((field, i) => (
             <div key={i} className="space-y-1">
               <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
                 {field.label}
               </div>
-              <div className={`text-sm ${field.value === 'Unavailable' || field.value === 'N/A' || field.value === 'Stripped' ? 'text-text-muted italic' : 'text-text-primary font-medium'}`}>
+              <div className={`text-sm break-words ${field.value === 'Unavailable' || field.value === 'N/A' || field.value === 'Stripped' ? 'text-text-muted italic' : 'text-text-primary font-medium'}`}>
                 {field.value}
               </div>
             </div>

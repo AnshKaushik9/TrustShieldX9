@@ -1,22 +1,47 @@
 import { PDFDocument, rgb, StandardFonts, PDFFont, PDFPage } from 'pdf-lib';
 import { ForensicsReport } from './mediaForensicsService';
 
+// --- Utility: Cross-Environment UUID Generator ---
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (1e7.toString() + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c: any) =>
+      (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
+    );
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0,
+      v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 // --- Utility: Calculate SHA256 ---
 async function calculateSHA256(file: File): Promise<string> {
-  const arrayBuffer = await file.arrayBuffer();
-  const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
+  if (typeof crypto === 'undefined' || !crypto.subtle || !crypto.subtle.digest) {
+    return "Unavailable (requires HTTPS)";
+  }
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+  } catch (err) {
+    return "Unavailable (hash calculation failed)";
+  }
 }
 
 // --- Utility: Extract Frame/Image ---
 async function extractMediaBytes(file: File): Promise<{ bytes: Uint8Array, type: 'png' | 'jpeg' } | null> {
   if (file.type.startsWith('image/')) {
     const arrayBuffer = await file.arrayBuffer();
-    return { 
-      bytes: new Uint8Array(arrayBuffer), 
-      type: file.type === 'image/png' ? 'png' : 'jpeg' 
+    return {
+      bytes: new Uint8Array(arrayBuffer),
+      type: file.type === 'image/png' ? 'png' : 'jpeg'
     };
   } else if (file.type.startsWith('video/')) {
     return new Promise((resolve) => {
@@ -91,11 +116,11 @@ export const pdfGeneratorService = {
       const doc = await PDFDocument.create();
       const font = await doc.embedFont(StandardFonts.Helvetica);
       const boldFont = await doc.embedFont(StandardFonts.HelveticaBold);
-      
+
       let pageNum = 1;
       let page = doc.addPage([595.28, 841.89]); // A4
       const { width, height } = page.getSize();
-      
+
       const themeColor = rgb(0.2, 0.4, 0.8);
       const textColor = rgb(0.1, 0.1, 0.1);
       const textLight = rgb(0.4, 0.4, 0.4);
@@ -103,17 +128,17 @@ export const pdfGeneratorService = {
       // --- 1. Cover Page & Header ---
       page.drawText('TrustShield AI', { x: 50, y: height - 50, size: 24, font: boldFont, color: themeColor });
       page.drawText('AI Media Forensics Report', { x: 50, y: height - 80, size: 18, font, color: textColor });
-      
-      page.drawText(`Report ID: ${crypto.randomUUID()}`, { x: 50, y: height - 120, size: 10, font, color: textLight });
+
+      page.drawText(`Report ID: ${generateUUID()}`, { x: 50, y: height - 120, size: 10, font, color: textLight });
       page.drawText(`Job ID: ${report.jobId}`, { x: 50, y: height - 135, size: 10, font, color: textLight });
       page.drawText(`Generated: ${new Date().toLocaleString()}`, { x: 50, y: height - 150, size: 10, font, color: textLight });
-      
+
       // --- 8. Final Verdict (Prominent Box on Cover) ---
       const isManipulated = (report.humanValidation?.finalDecision || report.riskBadge) !== "Authentic";
       const finalBadge = report.humanValidation?.finalDecision || report.riskBadge;
       const verdictBg = isManipulated ? rgb(1, 0.9, 0.9) : rgb(0.9, 1, 0.9);
       const verdictBorder = isManipulated ? rgb(0.8, 0, 0) : rgb(0, 0.6, 0);
-      
+
       page.drawRectangle({
         x: width / 2, y: height - 165, width: width / 2 - 50, height: 100,
         color: verdictBg, borderColor: verdictBorder, borderWidth: 1
@@ -131,7 +156,7 @@ export const pdfGeneratorService = {
         currentY -= 15;
         page.drawText(`AI Decision: ${report.humanValidation.originalAiDecision}`, { x: 50, y: currentY, size: 10, font, color: textColor });
         currentY -= 15;
-        
+
         let humanValidationText = "No";
         if (report.humanValidation.decisionAction === "Approve") {
           humanValidationText = "Approved by Analyst";
@@ -140,14 +165,14 @@ export const pdfGeneratorService = {
         } else if (report.humanValidation.decisionAction === "Override") {
           humanValidationText = `Overridden (Modified to ${report.humanValidation.finalDecision})`;
         }
-        
+
         page.drawText(`Human Validation: ${humanValidationText}`, { x: 50, y: currentY, size: 10, font, color: textColor });
         currentY -= 15;
         page.drawText(`Reviewer: ${report.humanValidation.reviewer}`, { x: 50, y: currentY, size: 10, font, color: textColor });
         currentY -= 15;
         page.drawText(`Review Time: ${new Date(report.humanValidation.reviewTime).toLocaleString()}`, { x: 50, y: currentY, size: 10, font, color: textColor });
         currentY -= 15;
-        
+
         if (report.humanValidation.isReviewed && report.humanValidation.reviewerNotes) {
           page.drawText(`Reviewer Notes: ${report.humanValidation.reviewerNotes}`, { x: 50, y: currentY, size: 10, font, color: textColor });
           currentY -= 15;
@@ -160,14 +185,14 @@ export const pdfGeneratorService = {
       if (mediaData) {
         page.drawText('Media Preview', { x: 50, y: currentY, size: 14, font: boldFont, color: themeColor });
         currentY -= 20;
-        
+
         let image;
         if (mediaData.type === 'png') {
           image = await doc.embedPng(mediaData.bytes);
         } else {
           image = await doc.embedJpg(mediaData.bytes);
         }
-        
+
         const imgDims = image.scaleToFit(width - 100, 200);
         page.drawImage(image, {
           x: 50,
@@ -181,7 +206,7 @@ export const pdfGeneratorService = {
       // --- 3. Executive Summary ---
       page.drawText('Executive Summary', { x: 50, y: currentY, size: 14, font: boldFont, color: themeColor });
       currentY -= 20;
-      
+
       const summaryLines = report.explanation.summary.match(/.{1,90}(\s|$)/g) || [report.explanation.summary];
       summaryLines.forEach(line => {
         page.drawText(line.trim(), { x: 50, y: currentY, size: 11, font, color: textColor });
@@ -200,7 +225,7 @@ export const pdfGeneratorService = {
       const hash = await calculateSHA256(file);
       page.drawText('Technical Metadata', { x: 50, y: currentY, size: 14, font: boldFont, color: themeColor });
       currentY -= 25;
-      
+
       const metaKeys = [
         { label: 'File Name', val: file.name },
         { label: 'File Size', val: report.metadata.fileSize },
@@ -232,7 +257,7 @@ export const pdfGeneratorService = {
       metrics.forEach(m => {
         page.drawText(m.name, { x: 50, y: currentY, size: 11, font: boldFont, color: textColor });
         page.drawText(`${m.score}%`, { x: 250, y: currentY, size: 11, font: boldFont, color: themeColor });
-        
+
         // Progress bar background
         page.drawRectangle({ x: 300, y: currentY, width: 200, height: 10, color: rgb(0.9, 0.9, 0.9) });
         // Progress bar fill
@@ -269,7 +294,7 @@ export const pdfGeneratorService = {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
-      
+
       const link = document.createElement('a');
       link.href = url;
       link.download = `TrustShield_Report_${report.jobId}.pdf`;
@@ -277,9 +302,11 @@ export const pdfGeneratorService = {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
+
+
     } catch (error) {
       console.error("Failed to generate PDF:", error);
+      throw new Error("Failed to generate the PDF report. Please try again.");
     }
   }
 };

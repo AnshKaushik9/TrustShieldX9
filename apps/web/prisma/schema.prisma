@@ -1,0 +1,31 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./trustshield.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model ReviewTask {
+  id                 String    @id @default(uuid())
+  source             String
+  aiDecision         String
+  confidence         Float
+  priority           String
+  thumbnail          String?
+  status             String    @default("PENDING") // PENDING or COMPLETED
+  createdAt          DateTime  @default(now())
+  
+  // Stored as a JSON string to preserve flexible original payloads
+  payload            String?   
+
+  // HumanValidation Fields
+  isReviewed         Boolean   @default(false)
+  reviewer           String?
+  reviewTime         DateTime?
+  originalAiDecision String?
+  reviewerNotes      String?
+  finalDecision      String?
+  decisionAction     String?   // "Approve", "Reject", "Override", "Auto"
+}

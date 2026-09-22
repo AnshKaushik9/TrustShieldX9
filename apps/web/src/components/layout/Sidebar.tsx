@@ -33,7 +33,10 @@ export function Sidebar() {
       initial={false}
       animate={{ width: isSidebarCollapsed ? 80 : 256 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="relative flex h-screen flex-col border-r border-border bg-base z-20 shrink-0"
+      className={cn(
+        "fixed inset-y-0 left-0 z-50 flex h-screen flex-col border-r border-border bg-base shrink-0 md:relative transition-transform duration-300",
+        isSidebarCollapsed ? "-translate-x-full md:translate-x-0" : "translate-x-0"
+      )}
     >
       <div className="flex h-16 items-center px-6 border-b border-border justify-between">
         <div className="flex items-center overflow-hidden">
@@ -58,7 +61,7 @@ export function Sidebar() {
         size="icon"
         onClick={toggleSidebar}
         aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className="absolute -right-4 top-20 h-8 w-8 rounded-full border border-border-muted bg-surface text-text-muted hover:text-text-primary z-50 hover:bg-muted"
+        className="absolute -right-4 top-20 hidden md:flex h-8 w-8 rounded-full border border-border-muted bg-surface text-text-muted hover:text-text-primary z-50 hover:bg-muted items-center justify-center"
       >
         {isSidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </Button>

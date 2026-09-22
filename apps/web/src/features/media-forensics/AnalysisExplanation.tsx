@@ -39,7 +39,7 @@ export function AnalysisExplanation({ explanation, isManipulated }: AnalysisExpl
         <div className="space-y-2">
           <h4 className="text-xs font-bold uppercase tracking-wider text-text-muted">Technical Evidence</h4>
           <div className="p-3 bg-base border border-border rounded-lg">
-            <p className="text-sm font-mono text-text-muted leading-relaxed">
+            <p className="text-sm font-mono text-text-muted leading-relaxed break-words whitespace-pre-wrap">
               {explanation.evidence}
             </p>
           </div>

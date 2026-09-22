@@ -18,7 +18,7 @@ export default function SettingsPage() {
             <label className="text-sm font-medium text-text-primary">Email Address</label>
             <div className="text-text-muted">admin@trustshield.ai</div>
           </div>
-          <Button variant="outline">Change Password</Button>
+          <Button variant="outline" disabled>Change Password (Not Configured)</Button>
         </CardContent>
       </Card>
 

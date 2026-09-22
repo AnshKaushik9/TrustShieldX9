@@ -5,6 +5,7 @@ import { GuardianStatus } from "@/features/live-web-guardian/GuardianStatus";
 import { ActivityTimeline } from "@/features/live-web-guardian/ActivityTimeline";
 import { ExtensionStatus } from "@/lib/services/extensionSyncStore";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { Settings, Shield } from "lucide-react";
 
 export default function LiveWebGuardianPage() {
@@ -40,9 +41,11 @@ export default function LiveWebGuardianPage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="border-border-muted bg-surface text-text-secondary">
-            <Settings className="w-4 h-4 mr-2" />
-            Extension Settings
+          <Button variant="outline" className="border-border-muted bg-surface text-text-secondary" asChild>
+            <Link href="/settings/extension">
+              <Settings className="w-4 h-4 mr-2" />
+              Extension Settings
+            </Link>
           </Button>
         </div>
       </div>

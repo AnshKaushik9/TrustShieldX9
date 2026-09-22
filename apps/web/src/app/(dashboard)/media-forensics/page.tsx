@@ -74,8 +74,42 @@ export default function MediaForensicsPage() {
     }
   };
 
-  const handleSkipValidation = () => {
+  const handleSkipValidation = async () => {
     if (!report) return;
+    
+    // Log the auto-approved decision in the real data flow
+    try {
+      // Create task
+      const postRes = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          source: "Media Forensics",
+          aiDecision: report.riskBadge,
+          confidence: report.confidence,
+          priority: report.riskBadge === "Authentic" ? "Low" : "High",
+          payload: { jobId }
+        })
+      });
+      
+      if (postRes.ok) {
+        const task = await postRes.json();
+        // Complete task with Auto decision
+        await fetch("/api/reviews", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: task.id,
+            reviewer: "Auto Review",
+            finalDecision: report.riskBadge,
+            decisionAction: "Auto"
+          })
+        });
+      }
+    } catch (e) {
+      console.error("Failed to log auto-review", e);
+    }
+
     const finalReport = {
       ...report,
       humanValidation: {

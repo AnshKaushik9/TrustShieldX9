@@ -4,40 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Fingerprint, ShieldAlert, ScanLine, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 
-const kpiData = [
-  {
-    title: "Media Scanned",
-    value: "24,592",
-    trend: "+12.5%",
-    trendUp: true,
-    icon: Fingerprint,
-    color: "text-blue-500",
-  },
-  {
-    title: "Deepfakes Detected",
-    value: "1,843",
-    trend: "+4.2%",
-    trendUp: false,
-    icon: ScanLine,
-    color: "text-warning-text",
-  },
-  {
-    title: "Threats Blocked",
-    value: "8,901",
-    trend: "+18.1%",
-    trendUp: true,
-    icon: ShieldAlert,
-    color: "text-success-text",
-  },
-  {
-    title: "Avg. Authenticity",
-    value: "94.2%",
-    trend: "+1.2%",
-    trendUp: true,
-    icon: Activity,
-    color: "text-indigo-500",
-  },
-];
+import { useEffect, useState } from "react";
+import { ReviewTask } from "@/lib/services/reviewSyncStore";
 
 const container = {
   hidden: { opacity: 0 },
@@ -53,6 +21,67 @@ const item = {
 };
 
 export function KpiCards() {
+  const [tasks, setTasks] = useState<ReviewTask[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await fetch("/api/reviews");
+        if (res.ok) {
+          const data = await res.json();
+          setTasks(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch reviews", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTasks();
+  }, []);
+
+  const totalScanned = tasks.length;
+  const deepfakesDetected = tasks.filter(t => t.aiDecision === "Deepfake" || t.aiDecision === "High Risk").length;
+  const avgConfidence = totalScanned > 0 
+    ? (tasks.reduce((sum, t) => sum + (t.confidence || 0), 0) / totalScanned).toFixed(1) 
+    : "0.0";
+
+  const kpiData = [
+    {
+      title: "Media Scanned",
+      value: loading ? "..." : totalScanned.toString(),
+      trend: totalScanned > 0 ? "Real data" : "No data",
+      trendUp: totalScanned > 0,
+      icon: Fingerprint,
+      color: "text-blue-500",
+    },
+    {
+      title: "Deepfakes Detected",
+      value: loading ? "..." : deepfakesDetected.toString(),
+      trend: deepfakesDetected > 0 ? "Real data" : "No data",
+      trendUp: false,
+      icon: ScanLine,
+      color: "text-warning-text",
+    },
+    {
+      title: "Threats Blocked",
+      value: "0",
+      trend: "Not Configured",
+      trendUp: true,
+      icon: ShieldAlert,
+      color: "text-text-muted",
+    },
+    {
+      title: "Avg. AI Confidence",
+      value: loading ? "..." : `${avgConfidence}%`,
+      trend: totalScanned > 0 ? "Real data" : "No data",
+      trendUp: true,
+      icon: Activity,
+      color: "text-indigo-500",
+    },
+  ];
+
   return (
     <motion.div 
       variants={container}
@@ -71,8 +100,8 @@ export function KpiCards() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-text-primary">{kpi.value}</div>
-              <p className={`text-xs mt-1 font-medium ${kpi.trendUp ? 'text-success-text' : 'text-danger-text'}`}>
-                {kpi.trend} <span className="text-text-muted font-normal">from last month</span>
+              <p className={`text-xs mt-1 font-medium ${kpi.trendUp ? 'text-success-text' : 'text-text-muted'}`}>
+                {kpi.trend}
               </p>
             </CardContent>
           </Card>
