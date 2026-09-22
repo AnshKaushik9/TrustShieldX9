@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /* LIGHT MODE SEMANTIC TOKENS */
+  --bg-base: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-muted: #F1F5F9;
+  --bg-hover: #E2E8F0;
+
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+
+  --border-default: #E2E8F0;
+  --border-muted: #CBD5E1;
+
+  /* STATUS COLORS (Light) */
+  --status-success-bg: #d1fae5;
+  --status-success-text: #047857;
+  --status-success-border: #a7f3d0;
+
+  --status-warning-bg: #fef3c7;
+  --status-warning-text: #b45309;
+  --status-warning-border: #fde68a;
+
+  --status-danger-bg: #fee2e2;
+  --status-danger-text: #b91c1c;
+  --status-danger-border: #fecaca;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+/* FALLBACK DARK MODE IF NOT USING CLASS THEME */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* DARK MODE SEMANTIC TOKENS (Match existing UI exactly) */
+    --bg-base: #0F1115;
+    --bg-surface: #1C1F26;
+    --bg-muted: #0F1115;
+    --bg-hover: #1C1F26;
+
+    --text-primary: #F1F5F9;
+    --text-secondary: #E2E8F0;
+    --text-muted: #94A3B8;
+
+    --border-default: #1E293B;
+    --border-muted: #334155;
+  }
+}
+
+/* EXPLICIT THEME CLASSES (Next-Themes) */
+.light {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  --bg-base: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-muted: #F1F5F9;
+  --bg-hover: #E2E8F0;
+
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+
+  --border-default: #E2E8F0;
+  --border-muted: #CBD5E1;
+
+  /* STATUS COLORS (Light) */
+  --status-success-bg: #d1fae5;
+  --status-success-text: #047857;
+  --status-success-border: #a7f3d0;
+
+  --status-warning-bg: #fef3c7;
+  --status-warning-text: #b45309;
+  --status-warning-border: #fde68a;
+
+  --status-danger-bg: #fee2e2;
+  --status-danger-text: #b91c1c;
+  --status-danger-border: #fecaca;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+
+  --bg-base: #0F1115;
+  --bg-surface: #1C1F26;
+  --bg-muted: #0F1115;
+  --bg-hover: #1C1F26;
+
+  --text-primary: #F1F5F9;
+  --text-secondary: #E2E8F0;
+  --text-muted: #94A3B8;
+
+  --border-default: #1E293B;
+  --border-muted: #334155;
+
+  /* STATUS COLORS (Dark) */
+  --status-success-bg: rgba(16, 185, 129, 0.2);
+  --status-success-text: #34d399;
+  --status-success-border: rgba(16, 185, 129, 0.2);
+
+  --status-warning-bg: rgba(245, 158, 11, 0.2);
+  --status-warning-text: #fbbf24;
+  --status-warning-border: rgba(245, 158, 11, 0.2);
+
+  --status-danger-bg: rgba(239, 68, 68, 0.2);
+  --status-danger-text: #f87171;
+  --status-danger-border: rgba(239, 68, 68, 0.2);
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}

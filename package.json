@@ -1,0 +1,23 @@
+{
+  "name": "trustshield-ai-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:web": "pnpm -F web dev",
+    "dev:api": "pnpm -F api dev",
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5"
+  },
+  "pnpm": {
+    "approvedBuilds": [
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}
